@@ -68,6 +68,8 @@ else
         NGINX_REWRITE='rewrite ^/liquidregtest(/.*)$ $1 break;'
         NGINX_REWRITE_NOJS='rewrite ^/liquidregtest(/.*)$ " /liquidregtest/nojs$1?" permanent'
         NGINX_NOSLASH_PATH="liquidregtest"
+
+        ELECTRS_ARGS="$ELECTRS_ARGS --asset-db-path /srv/registry"	
     else
         ELECTRS_NETWORK="liquid"
         PARENT_NETWORK="--parent-network mainnet"
@@ -245,6 +247,27 @@ if [ "${NETWORK}" == "regtest" ]; then
     fi
     address=$(cli -rpcwait getnewaddress)
     cli generatetoaddress 100 ${address}
+
+    for ((i=1;i<=100;i++)); 
+    do
+	ISSUE=$(cli issueasset ${i} 1)
+	cli generatetoaddress 1 ${address}
+    
+	ASSET_ID=$(echo ${ISSUE} | jq -r '.asset')
+	PREFIX=$(echo ${ISSUE} | jq -r '.asset | scan("^..")')
+
+	NAME="Asset_${i}"
+	TICKER="A${i}"
+	DOMAIN="${NAME}.com"
+
+	BLOB="{\"name\":\"${NAME}\", \"ticker\":\"${TICKER}\", \"precision\":3, \"entity\":{\"domain\":\"${DOMAIN}\"},\"contract\":{}}"
+
+	mkdir -p /srv/registry/${PREFIX}
+	FILE=${PREFIX}/${ASSET_ID}.json
+	echo ${BLOB} > /srv/registry/${FILE}
+    done
+    cli generatetoaddress 100 ${address}
+
     cli stop
 fi
 
