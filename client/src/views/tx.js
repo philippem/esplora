@@ -160,7 +160,15 @@ const txHeader = (tx, { tipHeight, mempool, feeEst, t
     <div>
       <div>{t`Weight units`}</div>
       <div>{`${formatNumber(tx.weight)} WU`}</div>
-    </div>
+	  </div>
+
+      { tx.funprop != null && 
+    <div>
+      <div>{t`FunProp`}</div>
+      <div>{`${formatNumber(tx.funprop)} Fun Units`}</div>
+	      </div>
+      }
+	  
     <div>
       <div>{t`Version`}</div>
       <div>{tx.version}</div>
