@@ -5,7 +5,7 @@ import vinView from './tx-vin'
 import voutView from './tx-vout'
 import privacyAnalysisView from './tx-privacy-analysis'
 import segwitGainsView from './tx-segwit-gains'
-import { formatSat, formatTime, formatVMB, formatNumber } from './util'
+import { formatSat, formatFeeRate, formatTime, formatVMB, formatNumber } from './util'
 import { isAllUnconfidential, isAllNative, isRbf, outTotal, updateQuery } from '../util'
 
 // Require behind env conditional so it gets removed by `envify` on non-elements builds
@@ -106,7 +106,7 @@ const btnDetailsContent = (isOpen, t) =>
   </div>
 
 const txHeader = (tx, { tipHeight, mempool, feeEst, t
-                      , txAnalysis: { feerate, mempoolDepth, confEstimate, overpaying, privacyAnalysis, segwitGains } }) => {
+			, txAnalysis: { feerate, discount_feerate, mempoolDepth, confEstimate, overpaying, privacyAnalysis, segwitGains } }) => {
 
   return (
   <div className="stats-table font-p2">
@@ -137,10 +137,11 @@ const txHeader = (tx, { tipHeight, mempool, feeEst, t
       </div>
     </div> }
 
+      
     { feerate != null && <div>
       <div>{t`Transaction fees`}</div>
       <div>
-        <span className="amount">{t`${formatSat(tx.fee)} (${feerate.toFixed(1)} sat/vB)`}</span>
+        <span className="amount">{t`${formatSat(tx.fee)}`} ({formatFeeRate(feerate, discount_feerate, tx)})</span>
         { overpaying > OVERPAYMENT_WARN &&
           <p className={`text-${ overpaying > OVERPAYMENT_WARN*1.5 ? 'danger' : 'warning' } mb-0`} title={t`compared to bitcoind's suggested fee of ${feeEst[2].toFixed(1)} sat/vB for confirmation within 2 blocks`}>
             ⓘ {t`overpaying by ${Math.round((overpaying-1)*100)}%`}
