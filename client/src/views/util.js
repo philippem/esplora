@@ -24,6 +24,19 @@ export const formatTime = (unix, with_tz = true) => {
 
 export const formatSat = (sats, label=nativeAssetLabel) => `${formatNumber(sat2btc(sats), NATIVE_PRECISION)} ${label}`
 
+export const formatFeeRate = (feerate, discount_feerate) => {
+  if (discount_feerate == null) {
+    return <span>{feerate.toFixed(2)} sat/vB</span>
+  } else {
+    let extra = "";
+    if (discount_feerate > 0.12) {
+      extra = "This transaction was likely created without the discount, and could have paid lower fees."
+    }
+    const info = `This is the fee rate of the transaction's discounted virtual size. The fee rate of the full virtual size is ${feerate.toFixed(2)} sat/vB. ${extra}`
+    return <span>{discount_feerate.toFixed(2)} sat/vB <a href="#" title={info}>?</a></span>
+  }
+}
+
 export const formatAssetAmount = (value, precision=0, t) =>
   <span>
     {formatNumber(precision > 0 ? moveDec(value, -precision) : value, precision)}
